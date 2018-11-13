@@ -34,6 +34,16 @@ void BaseEntity::Think()
 	sf::Vector2f pos = getPosition() + (velocity * 0.1f);
 	// update our position
 	setPosition(pos);
+
+	if (std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2) + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)))
+	{
+		sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
+		weight.x = weight.x / std::sqrt(weight.x * weight.x + weight.y * weight.y);
+		weight.y = weight.y / std::sqrt(weight.x * weight.x + weight.y * weight.y);
+		weight = weight / std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2 + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)));
+		mediumVelocity += neighbour->getVelocity() + weight;
+		mediumPosition += neighbour->getPostion() + weight;
+	}
 }
 
 void BaseEntity::Initialize()
