@@ -35,6 +35,8 @@ void BaseEntity::Think()
 	// update our position
 	setPosition(pos);
 
+	int neighbour = 1;
+
 	if (std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2) + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)))
 	{
 		sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
