@@ -30,21 +30,40 @@ BaseEntity::~BaseEntity()
 
 void BaseEntity::Think()
 {
+	const float MAX_NEIGHBOUR_DISTANCE = 250.0f;
+
 	// build a new position vector by adding a scaled version of the velocity vector
 	sf::Vector2f pos = getPosition() + (velocity * 0.1f);
 	// update our position
 	setPosition(pos);
 
-	int neighbour = 1;
+	std::vector<BaseEntity*> neighbours;
 
-	if (std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2) + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)))
-	{
-		sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
-		weight.x = weight.x / std::sqrt(weight.x * weight.x + weight.y * weight.y);
-		weight.y = weight.y / std::sqrt(weight.x * weight.x + weight.y * weight.y);
-		weight = weight / std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2 + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)));
-		mediumVelocity += neighbour->getVelocity() + weight;
-		mediumPosition += neighbour->getPostion() + weight;
+	for (auto entity : BaseEntity::Renderables) {
+		if (entity == this) continue;
+
+		auto distVec = getPosition() - entity->getPosition();
+		float distance = std::sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
+
+		if (distance > MAX_NEIGHBOUR_DISTANCE) continue;
+
+		neighbours.push_back(entity);
+	}
+
+	
+	sf::Vector2f mediumVelocity;
+	sf::Vector2f mediumPosition;
+
+	for (auto neighbour : neighbours) {
+		if (std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2) + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)))
+		{
+			sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
+			weight.x = weight.x / std::sqrt(weight.x * weight.x + weight.y * weight.y);
+			weight.y = weight.y / std::sqrt(weight.x * weight.x + weight.y * weight.y);
+			weight = weight / std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2 + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)));
+			mediumVelocity += neighbour->getVelocity() + weight;
+			mediumPosition += neighbour->getPosition() + weight;
+		}
 	}
 }
 

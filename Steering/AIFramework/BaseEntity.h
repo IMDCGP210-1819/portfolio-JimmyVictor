@@ -70,6 +70,8 @@ public:
 	*/
 	void SetTextureFile(std::string file) { filename = file; }
 
+	sf::Vector2f getVelocity() { return velocity; }
+
 protected:
 	std::string filename;
 	sf::Sprite sprite;
