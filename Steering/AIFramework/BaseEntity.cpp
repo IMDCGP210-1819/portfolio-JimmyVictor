@@ -39,7 +39,8 @@ void BaseEntity::Think()
 
 	std::vector<BaseEntity*> neighbours;
 
-	for (auto entity : BaseEntity::Renderables) {
+	for (auto entity : BaseEntity::Renderables) 
+	{
 		if (entity == this) continue;
 
 		auto distVec = getPosition() - entity->getPosition();
@@ -53,18 +54,61 @@ void BaseEntity::Think()
 	
 	sf::Vector2f mediumVelocity;
 	sf::Vector2f mediumPosition;
+	sf::Vector2f separationV;
 
 	for (auto neighbour : neighbours) {
-		if (std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2) + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)))
-		{
+
 			sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
 			weight.x = weight.x / std::sqrt(weight.x * weight.x + weight.y * weight.y);
 			weight.y = weight.y / std::sqrt(weight.x * weight.x + weight.y * weight.y);
 			weight = weight / std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2 + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)));
-			mediumVelocity += neighbour->getVelocity() + weight;
-			mediumPosition += neighbour->getPosition() + weight;
-		}
+			mediumVelocity += neighbour->getVelocity() * weight;
+			mediumPosition += neighbour->getPosition() * weight;
+			separationV += weight;
 	}
+
+
+	int neighbourCount = 0;
+
+	if (neighbourCount > 0)
+	{
+		separationV = separationV / (float)neighbourCount;
+		//normalizing
+		separationV = separationV / std::sqrt(separationV.x * separationV.x + separationV.y * separationV.y);
+
+
+		mediumVelocity = mediumVelocity / (float)neighbourCount;
+		//normalizing
+		mediumVelocity = mediumVelocity / abs(sqrt(mediumVelocity.x * mediumVelocity.x + mediumVelocity.y * mediumVelocity.y));
+
+		mediumPosition = mediumPosition / (float)neighbourCount;
+		mediumPosition = mediumPosition - getPosition();
+		//normalizing
+		mediumPosition = mediumPosition / abs(sqrt(mediumPosition.x * mediumPosition.x + mediumPosition.y * mediumPosition.y));
+	}
+
+
+
+	//Make it so that the BOIDs come out the opposite side of the screen once they hit a border
+	//this is so that I don't have to make the walls act like neighbours and just for ease of testing
+	if (getPosition().x <= 0)
+	{
+		setPosition(sf::Vector2f(800.0f, getPosition().y));
+	}
+	else if (getPosition().x >= 800.0f)
+	{
+		setPosition(sf::Vector2f(0.0f, getPosition().y));
+	}
+
+	if (getPosition().y <= 0)
+	{
+		setPosition(sf::Vector2f(getPosition().x, 600.0f));
+	}
+	else if (getPosition().y >= 600.0f)
+	{
+		setPosition(sf::Vector2f(getPosition().x, 0.0f));
+	}
+
 }
 
 void BaseEntity::Initialize()
