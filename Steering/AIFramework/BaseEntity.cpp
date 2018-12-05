@@ -30,45 +30,50 @@ BaseEntity::~BaseEntity()
 
 void BaseEntity::Think()
 {
+
+	int neighbourCount = 0;
+
+	sf::Vector2f mediumVelocity;
+	sf::Vector2f mediumPosition;
+	sf::Vector2f separationV;
+
 	const float MAX_NEIGHBOUR_DISTANCE = 250.0f;
 
 	// build a new position vector by adding a scaled version of the velocity vector
-	sf::Vector2f pos = getPosition() + (velocity * 0.1f);
+	sf::Vector2f pos = getPosition() + (velocity * 0.08f);
 	// update our position
 	setPosition(pos);
 
 	std::vector<BaseEntity*> neighbours;
 
-	for (auto entity : BaseEntity::Renderables) 
+	for (auto neighbour : BaseEntity::Renderables) 
 	{
-		if (entity == this) continue;
+		if (neighbour == this) continue;
 
-		auto distVec = getPosition() - entity->getPosition();
+		auto distVec = getPosition() - neighbour->getPosition();
 		float distance = std::sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
 
 		if (distance > MAX_NEIGHBOUR_DISTANCE) continue;
 
-		neighbours.push_back(entity);
+		//neighbourCount++;
+
+		neighbours.push_back(neighbour);
 	}
 
 	
-	sf::Vector2f mediumVelocity;
-	sf::Vector2f mediumPosition;
-	sf::Vector2f separationV;
 
-	for (auto neighbour : neighbours) {
-
+	for (auto neighbour : neighbours) 
+	{
 			sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
 			weight.x = weight.x / std::sqrt(weight.x * weight.x + weight.y * weight.y);
 			weight.y = weight.y / std::sqrt(weight.x * weight.x + weight.y * weight.y);
 			weight = weight / std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2 + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)));
-			mediumVelocity += neighbour->getVelocity() * weight;
-			mediumPosition += neighbour->getPosition() * weight;
-			separationV += weight;
+			mediumVelocity += neighbour->getVelocity() * weight; // CAN'T MULTIPLY VECTOR WITH VECTOR
+			mediumPosition += neighbour->getPosition() * weight; // HELP
+			separationV *= weight; // same thing here
 	}
 
 
-	int neighbourCount = 0;
 
 	if (neighbourCount > 0)
 	{
