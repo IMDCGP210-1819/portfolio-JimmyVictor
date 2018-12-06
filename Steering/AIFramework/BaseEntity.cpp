@@ -7,14 +7,14 @@ BaseEntity::BaseEntity()
 {
 	// with no further information, we make some assumptions and set default values.
 	filename = "assets\\boid.png";
-	colourTint = sf::Color::White;
+	colourTint = sf::Color::Green;
 	Initialize();
 }
 
 BaseEntity::BaseEntity(std::string file) : filename(file)
 {
 	// with just a texture file, we default to a white tint (so no tint at all).
-	colourTint = sf::Color::White;
+	colourTint = sf::Color::Green;
 	Initialize();
 }
 
@@ -37,7 +37,7 @@ void BaseEntity::Think()
 	sf::Vector2f mediumPosition;
 	sf::Vector2f separationV;
 
-	const float MAX_NEIGHBOUR_DISTANCE = 250.0f;
+	const float MAX_NEIGHBOUR_DISTANCE = 100.0f;
 
 	// build a new position vector by adding a scaled version of the velocity vector
 	sf::Vector2f pos = getPosition() + (velocity * 0.08f);
@@ -51,28 +51,12 @@ void BaseEntity::Think()
 		if (neighbour == this) continue;
 
 		auto distVec = getPosition() - neighbour->getPosition();
-		float distance = std::sqrtf(distVec.x * distVec.x + distVec.y * distVec.y);
+		float distance = std::sqrt(distVec.x * distVec.x + distVec.y * distVec.y);
 
 		if (distance > MAX_NEIGHBOUR_DISTANCE) continue;
 
-		//neighbourCount++;
-
 		neighbours.push_back(neighbour);
 	}
-
-	
-
-	for (auto neighbour : neighbours) 
-	{
-			sf::Vector2f weight = neighbour->getPosition() - this->getPosition();
-			weight.x = weight.x / std::sqrt(weight.x * weight.x + weight.y * weight.y);
-			weight.y = weight.y / std::sqrt(weight.x * weight.x + weight.y * weight.y);
-			weight = weight / std::sqrt(std::pow(neighbour->getOrigin().x - this->getOrigin().x, 2 + std::pow(neighbour->getOrigin().y - this->getOrigin().y, 2)));
-			mediumVelocity += neighbour->getVelocity() * weight; // CAN'T MULTIPLY VECTOR WITH VECTOR
-			mediumPosition += neighbour->getPosition() * weight; // HELP
-			separationV *= weight; // same thing here
-	}
-
 
 
 	if (neighbourCount > 0)
